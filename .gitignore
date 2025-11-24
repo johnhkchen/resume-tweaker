@@ -8,3 +8,9 @@ erl_crash.dump
 *.beam
 /config/*.secret.exs
 .elixir_ls/
+
+# Environment variables
+.env
+
+# Sample code for frontend reference (not part of deployment)
+sample_code/
