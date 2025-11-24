@@ -4,11 +4,10 @@
     "builder": "RAILPACK"
   },
   "deploy": {
-    "startCommand": "PHX_SERVER=true /app/_build/prod/rel/resume_tweaker/bin/resume_tweaker start",
+    "startCommand": "./bin/server",
     "healthcheckPath": "/health",
     "healthcheckTimeout": 100,
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }
 }
-
