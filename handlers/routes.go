@@ -18,11 +18,19 @@ func NewRouter() *chi.Mux {
 	// Static files
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
-	// Routes
+	// Public routes
 	r.Get("/", HandleLanding)
-	r.Get("/tweak", HandleTweakPage)
-	r.Post("/api/tweak/stream", HandleTweakStream)
 	r.Get("/health", HandleHealth)
+	r.Get("/login", HandleLoginPage)
+	r.Post("/login", HandleLogin)
+	r.Get("/logout", HandleLogout)
+
+	// Protected routes
+	r.Group(func(r chi.Router) {
+		r.Use(AuthRequired)
+		r.Get("/tweak", HandleTweakPage)
+		r.Post("/api/tweak/stream", HandleTweakStream)
+	})
 
 	return r
 }
