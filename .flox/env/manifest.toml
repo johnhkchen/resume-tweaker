@@ -15,7 +15,8 @@ version = 1
 ##  $ flox show gum     <- show all versions of a package
 ## -------------------------------------------------------------------
 [install]
-elixir.pkg-path = "elixir"
+go.pkg-path = "go"
+nodejs.pkg-path = "nodejs"  # For Tailwind CSS CLI
 postgresql.pkg-path = "postgresql"
 # gum.pkg-path = "gum"
 # gum.version = "^0.14.5"
@@ -41,6 +42,19 @@ on-activate = '''
     echo "Initializing PostgreSQL database..."
     initdb -D "$PGDATA" --username=postgres --pwfile=<(echo "postgres")
   fi
+
+  # Install Go tools if not already installed
+  export PATH="$HOME/go/bin:$PATH"
+
+  if ! command -v templ &> /dev/null; then
+    echo "Installing templ..."
+    go install github.com/a-h/templ/cmd/templ@latest
+  fi
+
+  if ! command -v sqlc &> /dev/null; then
+    echo "Installing sqlc..."
+    go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+  fi
 '''
 
 
@@ -48,12 +62,9 @@ on-activate = '''
 ## ... sourced by _your shell_ when you run 'flox activate'.
 ## -------------------------------------------------------------------
 [profile]
-# common = '''
-#   gum style \
-#   --foreground 212 --border-foreground 212 --border double \
-#   --align center --width 50 --margin "1 2" --padding "2 4" \
-#     $INTRO_MESSAGE
-# '''
+common = '''
+  export PATH="$HOME/go/bin:$PATH"
+'''
 ## Shell specific profiles go here:
 # bash = ...
 # zsh  = ...

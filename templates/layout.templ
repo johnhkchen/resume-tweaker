@@ -1,0 +1,32 @@
+package templates
+
+templ Layout(title string) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>{ title } | Resume Tweaker</title>
+			<link rel="stylesheet" href="/static/css/output.css"/>
+			<script type="module" src="https://cdn.jsdelivr.net/npm/@starfederation/datastar@1.0.0-beta.8/dist/datastar.min.js"></script>
+		</head>
+		<body class="min-h-screen bg-background text-foreground">
+			<header class="border-b border-border">
+				<div class="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
+					<a href="/" class="text-xl font-semibold">Resume Tweaker</a>
+					<nav class="flex gap-4">
+						<a href="/tweak" class="text-muted-foreground hover:text-foreground transition-colors">Tweak</a>
+					</nav>
+				</div>
+			</header>
+			<main>
+				{ children... }
+			</main>
+			<footer class="border-t border-border mt-auto">
+				<div class="max-w-4xl mx-auto px-6 py-4 text-center text-sm text-muted-foreground">
+					Part of the <a href="https://tweaking.app" class="underline hover:text-foreground">tweaking.app</a> family
+				</div>
+			</footer>
+		</body>
+	</html>
+}

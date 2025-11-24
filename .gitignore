@@ -1,16 +1,44 @@
-/_build
-/cover
-/deps
-/doc
-/.fetch
-erl_crash.dump
-*.ez
-*.beam
-/config/*.secret.exs
-.elixir_ls/
+# Go
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
 
-# Environment variables
+# Generated code (sqlc, baml)
+db/db.go
+db/models.go
+db/queries.sql.go
+baml_client/
+
+# Tailwind standalone CLI binary
+tailwindcss
+tailwindcss-*
+
+# Node (only used for Tailwind if not using standalone)
+node_modules/
+package.json
+package-lock.json
+
+# Environment
 .env
+.env.local
+.env.*
 
-# Sample code for frontend reference (not part of deployment)
-sample_code/
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Flox cache (local only)
+.flox/cache/
+.flox/log/

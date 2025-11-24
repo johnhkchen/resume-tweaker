@@ -1,0 +1,77 @@
+package templates
+
+templ TweakPage() {
+	@Layout("Tweak Your Resume") {
+		<div class="max-w-4xl mx-auto px-6 py-8">
+			<div data-signals="{ result: '', loading: false, error: '' }">
+				<h1 class="text-2xl font-bold mb-6">Tweak Your Resume</h1>
+
+				<!-- Form -->
+				<form
+					data-on-submit__prevent="$$post('/api/tweak/stream')"
+					class="space-y-6"
+				>
+					<div class="space-y-2">
+						<label for="resume" class="block text-sm font-medium">
+							Your Resume
+						</label>
+						<textarea
+							id="resume"
+							name="resume"
+							rows="10"
+							class="w-full p-3 border border-input rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-y"
+							placeholder="Paste your resume here..."
+						></textarea>
+					</div>
+
+					<div class="space-y-2">
+						<label for="job_description" class="block text-sm font-medium">
+							Job Description
+						</label>
+						<textarea
+							id="job_description"
+							name="job_description"
+							rows="6"
+							class="w-full p-3 border border-input rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-y"
+							placeholder="Paste the job description you're targeting..."
+						></textarea>
+					</div>
+
+					<button
+						type="submit"
+						class="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+						data-bind-disabled="$loading"
+					>
+						<span data-show="!$loading">Tweak My Resume</span>
+						<span data-show="$loading">Working...</span>
+					</button>
+				</form>
+
+				<!-- Error display -->
+				<div
+					data-show="$error"
+					class="mt-6 p-4 bg-destructive/10 text-destructive rounded-lg border border-destructive/20"
+				>
+					<p class="font-medium">Error</p>
+					<p data-text="$error"></p>
+				</div>
+
+				<!-- Streaming result -->
+				<div data-show="$result" class="mt-8 space-y-4">
+					<div class="flex items-center justify-between">
+						<h2 class="text-lg font-semibold">Tweaked Resume</h2>
+						<button
+							data-on-click="navigator.clipboard.writeText($result); this.textContent = 'Copied!'; setTimeout(() => this.textContent = 'Copy', 2000)"
+							class="px-4 py-2 text-sm border border-input rounded-lg hover:bg-muted transition-colors"
+						>
+							Copy
+						</button>
+					</div>
+					<div class="p-4 bg-muted rounded-lg">
+						<pre class="whitespace-pre-wrap font-mono text-sm" data-text="$result"></pre>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+}

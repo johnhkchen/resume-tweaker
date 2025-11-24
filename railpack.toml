@@ -2,11 +2,31 @@
 # Declarative build configuration - the Railway/Arch way!
 
 # Note: Railpack auto-detects Go projects via go.mod
-# This file may not be needed, but documents our approach
+# This file documents our approach and adds necessary build steps
 
-# If needed, Go packages can be specified:
-# [packages]
-# go = "1.23"
+[packages]
+go = "1.23"
+nodejs = "22"
 
-# Go builds to static binary - no native dependency complexity!
-# Much simpler than the Elixir version (no Rust, no GLIBC issues)
+[phases.setup]
+commands = [
+    # Install templ for template generation
+    "go install github.com/a-h/templ/cmd/templ@latest",
+    # Download Tailwind standalone CLI
+    "curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/download/v3.4.16/tailwindcss-linux-x64",
+    "chmod +x tailwindcss-linux-x64",
+    "mv tailwindcss-linux-x64 tailwindcss",
+]
+
+[phases.build]
+commands = [
+    # Generate templ files
+    "$HOME/go/bin/templ generate",
+    # Build Tailwind CSS
+    "./tailwindcss -i ./static/css/input.css -o ./static/css/output.css --minify",
+    # Build Go binary
+    "CGO_ENABLED=0 go build -o bin/server main.go",
+]
+
+[start]
+command = "./bin/server"

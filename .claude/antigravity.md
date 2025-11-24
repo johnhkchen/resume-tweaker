@@ -2,134 +2,126 @@
 
 ## What is Google Antigravity?
 
-Google Antigravity is an agentic development platform that enables developers to work at a higher, task-oriented level. It uses Gemini 3's advanced reasoning, tool use, and agentic coding capabilities to transform AI assistance from a tool into an active partner.
-
-## Key Features
-
-- **Autonomous Agents**: AI agents have dedicated access to Code Editor, Terminal, and Browser
-- **Artifacts**: Agents produce task lists, implementation plans, and screen recordings
-- **Manager Surface**: Spawn and orchestrate multiple agents across different workspaces
-- **Multi-Model Support**: Gemini 3 Pro, Claude Sonnet 4.5, and OpenAI GPT-OSS
-
-## Installation
-
-Download Google Antigravity:
-- Website: https://antigravity.google/download
-- Available for macOS, Windows, and Linux
-- Public preview at no cost for individuals
+Google Antigravity is an agentic development platform that enables developers to work at a higher, task-oriented level. It uses Gemini 3's advanced reasoning, tool use, and agentic coding capabilities.
 
 ## Opening This Project
 
-Once Google Antigravity is installed:
+```bash
+antigravity /path/to/resume-tweaker
+```
 
-1. **Open the project:**
-   ```bash
-   antigravity /path/to/resume-tweaker
-   ```
-
-2. **Or from within Antigravity:**
-   - File → Open Folder → Select `resume-tweaker`
+Or from within Antigravity: File → Open Folder → Select `resume-tweaker`
 
 ## Project Context for Agents
 
-When working with agents in Google Antigravity, provide them with this context:
-
 ### Project Overview
+
 This is a **Resume Tweaker** application built with:
-- **Backend**: Elixir + Phoenix + LiveView
-- **Database**: PostgreSQL (via Ecto)
-- **LLM Integration**: BAML with OpenAI GPT-4o-mini
+- **Backend**: Go + Chi router
+- **Templates**: Templ (type-safe)
+- **Interactivity**: Datastar (SSE streaming)
+- **Database**: PostgreSQL + sqlc
+- **LLM Integration**: BAML with Claude
+- **Styling**: Tailwind CSS + shadcn/ui tokens
 - **Deployment**: Railway via Railpack
-- **Dev Environment**: Flox (local), .tool-versions (Railway)
+- **Dev Environment**: Flox
 
 ### Key Files & Directories
+
 ```
 resume-tweaker/
-├── lib/
-│   ├── resume_tweaker/         # Core business logic
-│   │   ├── llm.ex             # BAML LLM wrapper with streaming
-│   │   └── resumes/           # Database schemas & context
-│   └── resume_tweaker_web/    # Web interface
-│       ├── live/              # LiveView pages
-│       └── router.ex          # Route definitions
-├── priv/
-│   ├── baml_src/              # BAML function definitions
-│   ├── repo/migrations/       # Database migrations
-│   └── static/                # Static assets
-├── config/
-│   ├── dev.exs                # Development config
-│   ├── prod.exs               # Production config
-│   └── runtime.exs            # Runtime config (env vars)
-├── sample_code/               # Design reference (Anchor project)
-└── .flox/                     # Flox environment config
+├── main.go                 # Entry point
+├── handlers/
+│   ├── routes.go           # Chi router + middleware
+│   ├── pages.go            # Page handlers
+│   └── api.go              # SSE streaming endpoint
+├── templates/
+│   ├── layout.templ        # Base layout
+│   ├── landing.templ       # Landing page
+│   └── tweak.templ         # Main interface
+├── static/css/
+│   ├── input.css           # Tailwind source
+│   └── output.css          # Compiled CSS
+├── db/
+│   ├── migrations/         # SQL migrations
+│   └── queries.sql         # sqlc queries
+├── baml_src/
+│   └── resume.baml         # BAML function definitions
+├── docs/                   # Documentation (Obsidian vault)
+├── go.mod
+├── Makefile
+└── railpack.toml           # Railway build config
 ```
 
 ### Important Documentation
-- `TODO.md` - Current task list and progress
-- `DEPLOYMENT.md` - Railway deployment guide
-- `specification.md` - Original project specification
-- `FRONTEND_REFERENCE.md` - UI design inspiration
+
+- `docs/specification.md` - Product requirements
+- `docs/deployment.md` - Railway deployment guide
+- `docs/development.md` - Local development setup
+- `TODO.md` - Current task list
 
 ### Environment Setup
+
 ```bash
 # Local development with Flox
 flox activate
 flox services start  # Starts PostgreSQL
 
-# Or use Railway CLI
-railway link
-railway run mix ecto.migrate
+# Start development server
+make dev
 ```
 
 ### Common Tasks
 
 **Run the development server:**
 ```bash
-mix phx.server
+make dev
 ```
 
-**Run database migrations:**
+**Generate templates:**
 ```bash
-mix ecto.migrate
+make generate
 ```
 
-**Generate a new migration:**
+**Build CSS:**
 ```bash
-mix ecto.gen.migration migration_name
+make css-build
 ```
 
-**Test LLM integration:**
-Ensure `OPENAI_API_KEY` is set in `.env`
+**Run migrations:**
+```bash
+make migrate
+```
 
 **Deploy to Railway:**
 ```bash
-git push origin main  # If connected to Railway
-# Or use Railway CLI: railway up
+git push origin main
 ```
 
 ### Testing the App
 
-1. Start server: `mix phx.server`
-2. Visit: http://localhost:4000
-3. Health check: http://localhost:4000/health
+1. Start server: `make dev`
+2. Visit: http://localhost:8080
+3. Health check: http://localhost:8080/health
 
 ### Architecture Notes
 
-- **Streaming**: LLM responses stream in real-time via LiveView
-- **Session Tracking**: Anonymous sessions via cookies
+- **Streaming**: LLM responses stream via SSE + Datastar
+- **Session Tracking**: Anonymous sessions via cookies (planned)
 - **Database**: Two tables - `resumes` and `tweak_results`
-- **Routes**: Root `/` is main interface, `/profile` (planned), `/health`
+- **Routes**: `/` (landing), `/tweak` (main), `/health`
 
 ## Tips for Working with Agents
 
-1. **Be specific**: "Update the LiveView to add a copy-to-clipboard button for the tweaked resume"
-2. **Reference files**: "Check the BAML definition in priv/baml_src/main.baml"
+1. **Be specific**: "Update the tweak handler to integrate BAML streaming"
+2. **Reference files**: "Check the BAML definition in baml_src/resume.baml"
 3. **Test iteratively**: Ask agents to test changes after implementation
-4. **Use artifacts**: Agents can create task lists and implementation plans
+4. **Check docs/**: Documentation is in Obsidian-compatible format
 
 ## Resources
 
-- [Google Antigravity Documentation](https://developers.googleblog.com/build-with-google-antigravity-our-new-agentic-development-platform/)
-- [Getting Started Guide](https://codelabs.developers.google.com/getting-started-google-antigravity)
-- [Phoenix LiveView Docs](https://hexdocs.pm/phoenix_live_view/)
+- [Go Documentation](https://go.dev/doc/)
+- [Chi Router](https://github.com/go-chi/chi)
+- [Templ](https://templ.guide/)
+- [Datastar](https://data-star.dev/)
 - [BAML Documentation](https://docs.boundaryml.com/)
