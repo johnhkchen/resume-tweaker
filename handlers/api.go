@@ -34,11 +34,12 @@ func HandleTweakStream(w http.ResponseWriter, r *http.Request) {
 	// Start SSE
 	sse := datastar.NewSSE(w, r)
 
-	// Set loading state
+	// Set initial loading state
 	sse.MarshalAndMergeSignals(map[string]any{
 		"loading": true,
 		"result":  "",
 		"error":   "",
+		"step":    0,
 	})
 
 	// TODO: Integrate BAML client here
@@ -46,19 +47,45 @@ func HandleTweakStream(w http.ResponseWriter, r *http.Request) {
 	streamResumeTweak(ctx, sse, resume, jobDesc)
 }
 
-// streamResumeTweak simulates LLM streaming until BAML is integrated
+// streamResumeTweak simulates LLM streaming with progress steps
 func streamResumeTweak(ctx context.Context, sse *datastar.ServerSentEventGenerator, resume, jobDesc string) {
-	// Simulated streaming response
+	// Step 1: Analyzing resume
+	sse.MarshalAndMergeSignals(map[string]any{"step": 1})
+	time.Sleep(800 * time.Millisecond)
+
+	// Step 2: Parsing job requirements
+	sse.MarshalAndMergeSignals(map[string]any{"step": 2})
+	time.Sleep(600 * time.Millisecond)
+
+	// Step 3: Identifying alignment opportunities
+	sse.MarshalAndMergeSignals(map[string]any{"step": 3})
+	time.Sleep(700 * time.Millisecond)
+
+	// Step 4: Generating suggestions - start streaming content
+	sse.MarshalAndMergeSignals(map[string]any{"step": 4})
+
+	// Simulated streaming response with realistic content
 	chunks := []string{
-		"Analyzing your resume...\n\n",
-		"Based on the job description, here are improvements:\n\n",
-		"**Summary:**\n",
-		"• Tailored your experience to match key requirements\n",
-		"• Added relevant keywords naturally\n",
-		"• Quantified achievements where possible\n\n",
-		"**Your Improved Resume:**\n\n",
-		resume[:min(len(resume), 200)] + "...\n\n",
-		"[This is a demo - BAML integration coming soon]",
+		"## Resume Analysis\n\n",
+		"Based on the job description, I've identified several opportunities ",
+		"to better align your resume with the target role.\n\n",
+		"### Key Recommendations\n\n",
+		"**1. Strengthen your summary**\n",
+		"Your current summary is good, but consider adding specific ",
+		"keywords from the job posting like:\n",
+		"- Data-driven decision making\n",
+		"- Cross-functional collaboration\n",
+		"- Stakeholder management\n\n",
+		"**2. Quantify your achievements**\n",
+		"Add metrics where possible:\n",
+		"- \"Increased efficiency by X%\"\n",
+		"- \"Managed budget of $X\"\n",
+		"- \"Led team of X people\"\n\n",
+		"**3. Tailor your experience section**\n",
+		"Reorder bullet points to prioritize ",
+		"experiences most relevant to this role.\n\n",
+		"---\n\n",
+		"*This is a demo. Real AI suggestions coming soon!*",
 	}
 
 	var fullResult string
@@ -71,11 +98,11 @@ func streamResumeTweak(ctx context.Context, sse *datastar.ServerSentEventGenerat
 			sse.MarshalAndMergeSignals(map[string]any{
 				"result": fullResult,
 			})
-			time.Sleep(300 * time.Millisecond) // Simulate streaming delay
+			time.Sleep(150 * time.Millisecond)
 		}
 	}
 
-	// Done
+	// Done - set loading to false
 	sse.MarshalAndMergeSignals(map[string]any{
 		"loading": false,
 	})
@@ -86,6 +113,7 @@ func sendError(w http.ResponseWriter, r *http.Request, msg string) {
 	sse.MarshalAndMergeSignals(map[string]any{
 		"error":   msg,
 		"loading": false,
+		"step":    0,
 	})
 }
 

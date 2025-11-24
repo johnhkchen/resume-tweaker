@@ -42,7 +42,7 @@ func Layout(title string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " | Resume Tweaker</title><link rel=\"stylesheet\" href=\"/static/css/output.css\"><script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@starfederation/datastar@1.0.0-beta.8/dist/datastar.min.js\"></script></head><body class=\"min-h-screen bg-background text-foreground\"><header class=\"border-b border-border\"><div class=\"max-w-4xl mx-auto px-6 py-4 flex items-center justify-between\"><a href=\"/\" class=\"text-xl font-semibold\">Resume Tweaker</a><nav class=\"flex gap-4\"><a href=\"/tweak\" class=\"text-muted-foreground hover:text-foreground transition-colors\">Tweak</a></nav></div></header><main>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " | Resume Tweaker</title><link rel=\"stylesheet\" href=\"/static/css/output.css\"><script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@starfederation/datastar@1.0.0-beta.8/dist/datastar.min.js\"></script></head><body><header class=\"border-b\" style=\"border-color: var(--color-grey-light);\"><div class=\"container\" style=\"display: flex; align-items: center; justify-content: space-between; padding-top: var(--spacing-md); padding-bottom: var(--spacing-md);\"><a href=\"/\" style=\"font-family: var(--font-serif); font-size: 1.25rem; font-weight: 600; color: var(--color-slate); text-decoration: none;\">Resume Tweaker</a><nav style=\"display: flex; gap: var(--spacing-lg);\"><a href=\"/tweak\" style=\"color: var(--color-slate-light); text-decoration: none; transition: color var(--transition-fast);\" onmouseover=\"this.style.color='var(--color-sage)'\" onmouseout=\"this.style.color='var(--color-slate-light)'\">Tweak</a></nav></div></header><main>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -50,7 +50,7 @@ func Layout(title string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</main><footer class=\"border-t border-border mt-auto\"><div class=\"max-w-4xl mx-auto px-6 py-4 text-center text-sm text-muted-foreground\">Part of the <a href=\"https://tweaking.app\" class=\"underline hover:text-foreground\">tweaking.app</a> family</div></footer></body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</main><footer class=\"border-t\" style=\"border-color: var(--color-grey-light); margin-top: auto;\"><div class=\"container\" style=\"padding-top: var(--spacing-md); padding-bottom: var(--spacing-md); text-align: center;\"><p style=\"font-size: 0.875rem; color: var(--color-grey);\">Part of the <a href=\"https://tweaking.app\" style=\"color: var(--color-sage); text-decoration: underline;\">tweaking.app</a> family</p></div></footer></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
