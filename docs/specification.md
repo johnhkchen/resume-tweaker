@@ -18,7 +18,7 @@ A web application that helps users improve their resumes using LLM-powered sugge
 | Router | Chi |
 | Templates | Templ |
 | Interactivity | Datastar |
-| Styling | Tailwind CSS + shadcn/ui tokens |
+| Styling | Tailwind CSS + Anchor Sage & Slate |
 | LLM | BAML |
 | Database | PostgreSQL + sqlc |
 | Deploy | Railpack → Railway |
@@ -33,7 +33,7 @@ A web application that helps users improve their resumes using LLM-powered sugge
 | **Templ** | Type-safe HTML templates, compile-time checks |
 | **BAML** | Type-safe LLM interactions, structured outputs |
 | **sqlc** | Type-safe SQL, generated Go code |
-| **Tailwind + shadcn/ui** | Rapid UI prototyping, consistent design |
+| **Tailwind + Anchor** | Sage & Slate palette, dark mode, consistent design |
 | **Flox** | Reproducible dev environment |
 | **Railpack** | Zero-config deploys for Go |
 
@@ -47,6 +47,25 @@ The critical UX is streaming - tokens appear as the LLM generates them.
 3. Server sends SSE chunks to browser
 4. Datastar updates DOM reactively
 5. Final result displayed, saved to DB
+
+**Progress Steps:**
+1. Analyzing your resume
+2. Parsing job requirements
+3. Identifying alignment opportunities
+4. Generating suggestions
+
+## Authentication
+
+### Phase 1: Shared Password (Current)
+- `AUTH_PASSWORD` env var protects `/tweak` and `/api/tweak/stream`
+- 7-day cookie session
+- Constant-time password comparison
+- No auth when env var is unset (dev mode)
+
+### Phase 2: OAuth (Future)
+- Google OAuth for real user accounts
+- Per-user rate limiting
+- User history and saved resumes
 
 ## Database Schema
 
@@ -81,6 +100,8 @@ CREATE TABLE tweak_results (
 
 ## BAML Definition
 
+See `docs/reference/anchor/baml_src/resume.baml` for reference implementation.
+
 ```baml
 function TweakResume(resume: string, job_description: string) -> string {
     client "anthropic/claude-sonnet-4-20250514"
@@ -110,24 +131,40 @@ function TweakResume(resume: string, job_description: string) -> string {
 
 ## Routes
 
-| Path | Method | Purpose |
-|------|--------|---------|
-| `/` | GET | Landing page |
-| `/tweak` | GET | Main interface |
-| `/api/tweak/stream` | POST | SSE streaming endpoint |
-| `/health` | GET | Health check for Railway |
+| Path | Method | Auth | Purpose |
+|------|--------|------|---------|
+| `/` | GET | Public | Landing page |
+| `/login` | GET | Public | Login form |
+| `/login` | POST | Public | Authenticate |
+| `/logout` | GET | Public | Clear session |
+| `/tweak` | GET | Protected | Main interface |
+| `/api/tweak/stream` | POST | Protected | SSE streaming endpoint |
+| `/health` | GET | Public | Health check for Railway |
 
 ## Environment Variables
 
-| Variable | Purpose |
-|----------|---------|
-| `DATABASE_URL` | PostgreSQL connection |
-| `ANTHROPIC_API_KEY` | For BAML/Claude |
-| `PORT` | Server port (Railway sets this) |
-| `SESSION_SECRET` | Cookie signing |
+| Variable | Required | Purpose |
+|----------|----------|---------|
+| `PORT` | Yes (Railway sets) | Server port |
+| `AUTH_PASSWORD` | Production | Password protection |
+| `DATABASE_URL` | Future | PostgreSQL connection |
+| `ANTHROPIC_API_KEY` | Future | For BAML/Claude |
+
+## Design System
+
+Using Anchor's Sage & Slate palette:
+
+| Token | Light | Dark |
+|-------|-------|------|
+| `--color-paper` | #F9F9F7 | #222831 |
+| `--color-card` | #FFFFFF | #393E46 |
+| `--color-sage` | #6B9080 | #8FAF9A |
+| `--color-slate` | #2D3748 | #DFD0B8 |
+
+Fonts: Lora (serif headings) + Nunito (sans body)
 
 ## Related Documents
 
 - [[deployment]] - How to deploy to Railway
 - [[development]] - Local development setup
-- [[reference/design]] - UI design inspiration
+- [[reference/anchor]] - BAML prompts and UI patterns from Anchor

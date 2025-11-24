@@ -1,34 +1,23 @@
 # Resume Tweaker - TODO
 
-## Current Status: First Deploy Live
+## Current Status: Auth Protected
 
 **Date**: November 24, 2025
 **URL**: https://resume.tweaking.app
 
-Go MVP deployed to Railway. UI works, streaming placeholder functional.
+Go MVP deployed with password auth. Frontend redesigned with Anchor's Sage & Slate design system.
 
-## Priority: Authentication
+## Priority: BAML Integration
 
-**Before enabling LLM calls**, we need auth to prevent abuse:
+Now that auth is in place, we can safely enable LLM calls:
 
-- [ ] Choose auth strategy (OAuth? Magic link? Simple password?)
-- [ ] Implement auth middleware
-- [ ] Protect `/api/tweak/stream` endpoint
-- [ ] Add login/logout UI
-
-Options to consider:
-1. **OAuth (Google/GitHub)** - Best UX, more setup
-2. **Magic link email** - Simple, needs email service
-3. **Simple shared password** - Quick MVP protection
-4. **Rate limiting by IP** - Supplement, not replacement
-
-## After Auth
-
-### BAML Integration
 - [ ] Install BAML Go SDK
-- [ ] Generate client from `baml_src/resume.baml`
-- [ ] Wire up streaming endpoint
-- [ ] Test with Anthropic API key
+- [ ] Create resume tweaking prompt (reference: `docs/reference/anchor/baml_src/resume.baml`)
+- [ ] Wire up streaming endpoint with real LLM
+- [ ] Add `ANTHROPIC_API_KEY` to Railway env vars
+- [ ] Test end-to-end flow
+
+## Future Work
 
 ### Database
 - [ ] Run migrations on Railway PostgreSQL
@@ -39,16 +28,23 @@ Options to consider:
 - [ ] Session cookies for tracking
 - [ ] Anonymous user history
 
+### OAuth (Phase 2 Auth)
+- [ ] Add Google OAuth for real user accounts
+- [ ] User-specific rate limiting
+- [ ] Per-user history
+
 ## Completed
 
 - [x] Go project with Chi router
-- [x] Templ templates (layout, landing, tweak)
-- [x] Tailwind CSS + shadcn/ui tokens
-- [x] Datastar SSE streaming (placeholder)
+- [x] Templ templates (layout, landing, tweak, login)
+- [x] Anchor Sage & Slate design system
+- [x] Datastar SSE streaming (placeholder with progress steps)
 - [x] Health check endpoint
 - [x] Railway deployment via Railpack
 - [x] Custom domain SSL
 - [x] Documentation (Obsidian-ready in `docs/`)
+- [x] Password authentication (`AUTH_PASSWORD` env var)
+- [x] Protected routes (`/tweak`, `/api/tweak/stream`)
 
 ## Quick Reference
 
@@ -59,12 +55,21 @@ make generate       # Generate templ
 make css-build      # Build CSS
 ```
 
-| Route | Purpose |
-|-------|---------|
-| `/` | Landing |
-| `/tweak` | Main UI |
-| `/api/tweak/stream` | SSE (needs auth!) |
-| `/health` | Health check |
+| Route | Method | Auth | Purpose |
+|-------|--------|------|---------|
+| `/` | GET | Public | Landing |
+| `/login` | GET/POST | Public | Login form |
+| `/logout` | GET | Public | Clear session |
+| `/tweak` | GET | Protected | Main UI |
+| `/api/tweak/stream` | POST | Protected | SSE streaming |
+| `/health` | GET | Public | Health check |
+
+## Reference Code
+
+Anchor project reference files for BAML prompts and UX patterns:
+
+- `docs/reference/anchor/baml_src/` - BAML prompt definitions
+- `docs/reference/anchor/components/` - Svelte streaming UI components
 
 ## Documentation
 
