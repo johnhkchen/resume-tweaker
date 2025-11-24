@@ -4,15 +4,37 @@
 
 Resume Tweaker uses LLM technology (via BAML and GPT-4o-mini) to help you tailor your resume to specific job descriptions with real-time streaming feedback.
 
+---
+
+## ⚠️ In Transition: Elixir → Go
+
+This project is transitioning from Elixir/Phoenix to Go. See [TRANSITION.md](TRANSITION.md) for details.
+
+**Current Status**: Elixir files removed, ready for Go implementation in next session.
+
+**Why Go?**
+- BAML has first-class Go support (vs community-maintained Elixir package)
+- Static binaries avoid GLIBC version mismatches
+- Simpler deployment with Railpack
+- Better ecosystem fit
+
+**What's Staying:**
+- ✅ Flox + Railpack philosophy
+- ✅ Railway deployment
+- ✅ Design documentation and references
+- ✅ Zero-config approach
+
+---
+
 ## Overview
 
 - **Domain**: resume.tweaking.app
-- **Stack**: Elixir + Phoenix + LiveView + PostgreSQL
+- **Stack**: Go + BAML + PostgreSQL (planned)
 - **LLM**: BAML with OpenAI GPT-4o-mini
 - **Deployment**: Railway via Railpack
 - **Dev Environment**: Flox
 
-## Features
+## Features (Planned)
 
 - 📝 **Paste & Tweak**: Input your resume and job description
 - ⚡ **Real-time Streaming**: Watch as AI suggestions appear
@@ -20,170 +42,36 @@ Resume Tweaker uses LLM technology (via BAML and GPT-4o-mini) to help you tailor
 - 🎯 **Job-Specific**: Tailored to each job description
 - 🔒 **Privacy-First**: No account required, session-based tracking
 
-## Quick Start
-
-### Prerequisites
-
-- [Flox](https://flox.dev/) installed
-- OpenAI API key
-
-### Local Development
-
-```bash
-# Clone the repository
-git clone <repository-url>
-cd resume-tweaker
-
-# Activate Flox environment
-flox activate
-
-# Start PostgreSQL service
-flox services start
-
-# Set up database
-mix ecto.create
-mix ecto.migrate
-
-# Copy environment template and add your API key
-cp .env.example .env
-# Edit .env and add: OPENAI_API_KEY=your_key_here
-
-# Start the Phoenix server
-mix phx.server
-```
-
-Visit http://localhost:4000
-
-### Using Railway CLI
-
-```bash
-# Install Railway CLI
-npm install -g @railway/cli
-
-# Link to your Railway project
-railway link
-
-# Run commands in Railway environment
-railway run mix ecto.migrate
-```
-
-## Project Structure
-
-```
-resume-tweaker/
-├── lib/
-│   ├── resume_tweaker/         # Core business logic
-│   │   ├── llm.ex             # BAML LLM client wrapper
-│   │   ├── resumes.ex         # Database context
-│   │   └── resumes/           # Schemas (Resume, TweakResult)
-│   └── resume_tweaker_web/    # Web layer
-│       ├── live/              # LiveView UI
-│       │   └── tweak_live.ex  # Main interface
-│       └── router.ex          # Routes
-├── priv/
-│   ├── baml_src/              # BAML function definitions
-│   │   └── main.baml         # TweakResume function
-│   └── repo/migrations/       # Database migrations
-├── config/                     # Application configuration
-├── sample_code/               # UI design reference (Anchor)
-└── .flox/                     # Flox environment
-```
-
-## Routes
-
-- `/` - Main resume tweaking interface
-- `/profile` - User submission history (planned)
-- `/health` - Health check endpoint
-
-## Database Schema
-
-### resumes
-- `original_content` - Input resume
-- `job_description` - Target job posting
-- `session_id` - Anonymous session tracking
-- `metadata` - Extensible JSON field
-
-### tweak_results
-- `resume_id` - Foreign key to resumes
-- `tweaked_content` - LLM-generated output
-- `model_used` - LLM model identifier
-- `prompt_tokens`, `completion_tokens` - Usage metrics
-- `processing_time_ms` - Performance tracking
-
 ## Technology Stack
 
 | Component | Technology |
 |-----------|------------|
-| Language | Elixir 1.18.4 |
-| Framework | Phoenix with LiveView |
+| Language | Go (planned) |
+| LLM Framework | BAML (first-class Go support) |
 | Database | PostgreSQL |
-| ORM | Ecto |
-| LLM Framework | BAML |
-| LLM Model | GPT-4o-mini (OpenAI) |
 | Deployment | Railway (Railpack) |
 | Dev Environment | Flox |
 
-## Deployment
-
-See [DEPLOYMENT.md](DEPLOYMENT.md) for comprehensive Railway deployment instructions.
-
-**Quick Deploy:**
-1. Connect GitHub repo to Railway
-2. Add PostgreSQL database addon
-3. Set environment variables:
-   - `OPENAI_API_KEY`
-   - `SECRET_KEY_BASE`
-   - `PHX_HOST`
-4. Railway auto-deploys on push to main
-
-## Flox + Railpack Integration
+## Flox + Railpack Philosophy
 
 This project uses **Flox** for local development and **Railpack** for deployment:
 
-- **Flox** provides the complete dev environment (Elixir, PostgreSQL)
-- **Railpack** reads `.tool-versions` for deployment consistency
-- **`railpack.toml`** declares Rust for compiling native dependencies
-- Builds `baml_elixir` from source to avoid GLIBC mismatches
-- Same Elixir/Erlang versions in both environments
+- **Flox** provides the complete dev environment
+- **Railpack** provides zero-config Railway deployment
+- **Declarative configuration** over handwritten Dockerfiles
+- The Arch Linux / Nix mindset: declare dependencies, let the platform handle it
 
-### Native Dependencies (The Railway Way)
-Instead of precompiled binaries, we compile `baml_elixir` from source on Railway:
-- `railpack.toml` declares Rust as a build dependency
-- `BAML_ELIXIR_BUILD=true` forces source compilation
-- No custom Dockerfile needed - pure declarative config
-
-## Development Tools
-
-### With Flox
-
-```bash
-flox activate              # Activate environment
-flox services start        # Start PostgreSQL
-flox services status       # Check service status
-flox services stop         # Stop services
-```
-
-### Phoenix Commands
-
-```bash
-mix ecto.create           # Create database
-mix ecto.migrate          # Run migrations
-mix ecto.rollback         # Rollback migration
-mix phx.server            # Start dev server
-mix test                  # Run tests
-mix phx.gen.secret        # Generate secret key
-```
-
-## Using Google Antigravity
-
-This project is configured for development with [Google Antigravity](https://antigravity.google/download), an agentic development platform.
-
-See [.claude/antigravity.md](.claude/antigravity.md) for setup instructions and project context for AI agents.
+### Why This Approach
+- **No custom Dockerfiles** - Railpack handles everything
+- **Reproducible environments** - Flox ensures consistency
+- **Platform-native** - Uses tools as designed
+- **Simple maintenance** - Declarative config in version control
 
 ## Documentation
 
-- [TODO.md](TODO.md) - Task tracking and progress
-- [DEPLOYMENT.md](DEPLOYMENT.md) - Railway deployment guide
+- [TRANSITION.md](TRANSITION.md) - Why we moved from Elixir to Go
+- [DEPLOYMENT.md](DEPLOYMENT.md) - Railway deployment guide (will be updated for Go)
+- [TODO.md](TODO.md) - Task tracking
 - [specification.md](specification.md) - Original project specification
 - [FRONTEND_REFERENCE.md](FRONTEND_REFERENCE.md) - UI design inspiration
 - [.claude/antigravity.md](.claude/antigravity.md) - Google Antigravity setup
@@ -196,26 +84,47 @@ Inspired by the **Anchor** project (see `sample_code/`):
 - Clear action steps
 - Real-time feedback
 
+## Railway Deployment
+
+Railway project is already configured:
+- PostgreSQL database addon connected
+- Custom domain: resume.tweaking.app
+- Auto-deployment on push to main
+- Health check monitoring
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for full details.
+
+## Next Steps
+
+For the next session (Go implementation):
+
+1. **Initialize Go module**
+2. **Setup Flox environment** with Go + PostgreSQL
+3. **Create basic HTTP server** with health check
+4. **Integrate BAML Go SDK**
+5. **Implement resume tweaking** with streaming
+6. **Deploy to Railway**
+
+See [TRANSITION.md](TRANSITION.md) for detailed implementation plan.
+
 ## Contributing
 
-This is an MVP. Future improvements:
+This is an MVP in transition. The Elixir implementation has been removed in favor of Go.
+
+Future improvements:
+- Complete Go implementation
 - Enhanced UI based on Anchor design patterns
 - Profile page with submission history
 - Multiple LLM model support
-- Advanced customization options
 - Export formats (PDF, DOCX)
-
-## License
-
-[Your License Here]
 
 ## Support
 
-For issues or questions:
-- Check [TODO.md](TODO.md) for known issues
-- Review [DEPLOYMENT.md](DEPLOYMENT.md) for deployment troubleshooting
-- Submit issues via GitHub
+For questions about the transition:
+- Check [TRANSITION.md](TRANSITION.md) for rationale
+- Review [TODO.md](TODO.md) for current status
+- See [specification.md](specification.md) for product requirements
 
 ---
 
-Built with ❤️ using Elixir, Phoenix, and BAML
+Built with ❤️ using the Railway/Arch philosophy

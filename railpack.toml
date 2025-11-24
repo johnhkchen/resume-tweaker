@@ -1,11 +1,12 @@
-# Railpack Configuration for Resume Tweaker
+# Railpack Configuration for Resume Tweaker (Go)
 # Declarative build configuration - the Railway/Arch way!
 
-[packages]
-# Install Rust for compiling baml_elixir NIF from source
-rust = "1.83"
+# Note: Railpack auto-detects Go projects via go.mod
+# This file may not be needed, but documents our approach
 
-[build]
-# Force baml_elixir to compile from source instead of using precompiled binaries
-# This avoids GLIBC version mismatches
-env = { BAML_ELIXIR_BUILD = "true" }
+# If needed, Go packages can be specified:
+# [packages]
+# go = "1.23"
+
+# Go builds to static binary - no native dependency complexity!
+# Much simpler than the Elixir version (no Rust, no GLIBC issues)
