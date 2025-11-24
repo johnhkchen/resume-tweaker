@@ -1,87 +1,73 @@
 # Resume Tweaker - TODO
 
-## Current Status: Go MVP Complete
+## Current Status: First Deploy Live
 
 **Date**: November 24, 2025
+**URL**: https://resume.tweaking.app
 
-The Go implementation is scaffolded and working locally.
+Go MVP deployed to Railway. UI works, streaming placeholder functional.
 
-## Completed
+## Priority: Authentication
 
-- [x] Go project scaffolding with Chi router
-- [x] Templ templates (layout, landing, tweak)
-- [x] Tailwind CSS with shadcn/ui design tokens
-- [x] Datastar integration for SSE streaming
-- [x] Health check endpoint
-- [x] Flox environment configured
-- [x] Railpack configuration for Railway
-- [x] Documentation reorganized (Obsidian-ready)
+**Before enabling LLM calls**, we need auth to prevent abuse:
 
-## In Progress
+- [ ] Choose auth strategy (OAuth? Magic link? Simple password?)
+- [ ] Implement auth middleware
+- [ ] Protect `/api/tweak/stream` endpoint
+- [ ] Add login/logout UI
+
+Options to consider:
+1. **OAuth (Google/GitHub)** - Best UX, more setup
+2. **Magic link email** - Simple, needs email service
+3. **Simple shared password** - Quick MVP protection
+4. **Rate limiting by IP** - Supplement, not replacement
+
+## After Auth
 
 ### BAML Integration
 - [ ] Install BAML Go SDK
-- [ ] Generate BAML client from `baml_src/resume.baml`
-- [ ] Wire up streaming to actual LLM
+- [ ] Generate client from `baml_src/resume.baml`
+- [ ] Wire up streaming endpoint
 - [ ] Test with Anthropic API key
-
-## Next Up
 
 ### Database
 - [ ] Run migrations on Railway PostgreSQL
 - [ ] Generate sqlc code
-- [ ] Implement db package
 - [ ] Save submissions and results
 
 ### Session Management
-- [ ] Implement session cookie middleware
-- [ ] Track anonymous user history
+- [ ] Session cookies for tracking
+- [ ] Anonymous user history
 
-### Polish
-- [ ] Error handling improvements
-- [ ] Loading animations
-- [ ] Mobile testing
+## Completed
 
-## Future
-
-- [ ] Profile page with history
-- [ ] Export options (PDF, DOCX)
-- [ ] Multiple LLM model selection
-- [ ] Tests and CI/CD
+- [x] Go project with Chi router
+- [x] Templ templates (layout, landing, tweak)
+- [x] Tailwind CSS + shadcn/ui tokens
+- [x] Datastar SSE streaming (placeholder)
+- [x] Health check endpoint
+- [x] Railway deployment via Railpack
+- [x] Custom domain SSL
+- [x] Documentation (Obsidian-ready in `docs/`)
 
 ## Quick Reference
 
-### Commands
-
 ```bash
-flox activate       # Enter dev environment
+flox activate       # Dev environment
 make dev            # Start server
 make generate       # Generate templ
 make css-build      # Build CSS
-make build          # Production binary
 ```
 
-### Routes
-
-| Path | Purpose |
-|------|---------|
-| `/` | Landing page |
-| `/tweak` | Main interface |
-| `/api/tweak/stream` | SSE endpoint |
+| Route | Purpose |
+|-------|---------|
+| `/` | Landing |
+| `/tweak` | Main UI |
+| `/api/tweak/stream` | SSE (needs auth!) |
 | `/health` | Health check |
-
-### Environment
-
-```
-PORT=8080
-DATABASE_URL=postgres://...
-ANTHROPIC_API_KEY=sk-ant-...
-```
 
 ## Documentation
 
-All documentation is in `docs/` (Obsidian-compatible):
 - `docs/specification.md` - Product spec
 - `docs/deployment.md` - Railway guide
-- `docs/development.md` - Local dev setup
-- `docs/reference/design.md` - UI reference
+- `docs/development.md` - Local setup
