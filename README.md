@@ -142,7 +142,15 @@ This project uses **Flox** for local development and **Railpack** for deployment
 
 - **Flox** provides the complete dev environment (Elixir, PostgreSQL)
 - **Railpack** reads `.tool-versions` for deployment consistency
+- **`railpack.toml`** declares Rust for compiling native dependencies
+- Builds `baml_elixir` from source to avoid GLIBC mismatches
 - Same Elixir/Erlang versions in both environments
+
+### Native Dependencies (The Railway Way)
+Instead of precompiled binaries, we compile `baml_elixir` from source on Railway:
+- `railpack.toml` declares Rust as a build dependency
+- `BAML_ELIXIR_BUILD=true` forces source compilation
+- No custom Dockerfile needed - pure declarative config
 
 ## Development Tools
 

@@ -1,0 +1,11 @@
+# Railpack Configuration for Resume Tweaker
+# Declarative build configuration - the Railway/Arch way!
+
+[packages]
+# Install Rust for compiling baml_elixir NIF from source
+rust = "1.83"
+
+[build]
+# Force baml_elixir to compile from source instead of using precompiled binaries
+# This avoids GLIBC version mismatches
+env = { BAML_ELIXIR_BUILD = "true" }

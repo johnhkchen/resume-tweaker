@@ -29,6 +29,34 @@ mix ecto.create && mix ecto.migrate
 mix phx.server
 ```
 
+## Understanding the Railpack Configuration
+
+This project uses `railpack.toml` to solve a common deployment challenge: **native dependencies with GLIBC mismatches**.
+
+### The Problem
+- `baml_elixir` uses a Rust NIF (Native Implemented Function)
+- Precompiled binaries require GLIBC 2.38
+- Railway's environment has an older GLIBC version
+
+### The Solution (The Railway/Arch Way)
+Instead of writing a custom Dockerfile, we use **declarative configuration**:
+
+```toml
+# railpack.toml
+[packages]
+rust = "1.83"  # Install Rust during build
+
+[build]
+env = { BAML_ELIXIR_BUILD = "true" }  # Force source compilation
+```
+
+**Philosophy:**
+- **Arch Linux approach**: Declare build dependencies, compile on target system
+- **Railway/Railpack ethos**: Declarative config, zero handwritten Dockerfiles
+- **Result**: Railpack installs Rust and compiles the NIF from source, avoiding GLIBC mismatches
+
+This is superior to precompiled binaries because it builds against Railway's actual runtime environment.
+
 ## Deployment Steps
 
 ### 1. Connect Repository to Railway
