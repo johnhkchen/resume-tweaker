@@ -16,8 +16,9 @@ func main() {
 
 	r := handlers.NewRouter()
 
-	log.Printf("Starting server on :%s", port)
-	if err := http.ListenAndServe(":"+port, r); err != nil {
+	addr := "0.0.0.0:" + port
+	log.Printf("Starting server on %s", addr)
+	if err := http.ListenAndServe(addr, r); err != nil {
 		log.Fatal(err)
 	}
 }
