@@ -1,32 +1,5 @@
 # Railpack Configuration for Resume Tweaker (Go)
-# Declarative build configuration - the Railway/Arch way!
-
-# Note: Railpack auto-detects Go projects via go.mod
-# This file documents our approach and adds necessary build steps
+# Keep it simple - let Railpack auto-detect Go
 
 [packages]
 go = "1.23"
-nodejs = "22"
-
-[phases.setup]
-commands = [
-    # Install templ for template generation
-    "go install github.com/a-h/templ/cmd/templ@latest",
-    # Download Tailwind standalone CLI
-    "curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/download/v3.4.16/tailwindcss-linux-x64",
-    "chmod +x tailwindcss-linux-x64",
-    "mv tailwindcss-linux-x64 tailwindcss",
-]
-
-[phases.build]
-commands = [
-    # Generate templ files
-    "$HOME/go/bin/templ generate",
-    # Build Tailwind CSS
-    "./tailwindcss -i ./static/css/input.css -o ./static/css/output.css --minify",
-    # Build Go binary
-    "CGO_ENABLED=0 go build -o bin/server main.go",
-]
-
-[start]
-command = "./bin/server"
