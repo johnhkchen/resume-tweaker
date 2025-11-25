@@ -9,6 +9,7 @@ import (
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
+	"github.com/pocketbase/pocketbase/tools/hook"
 )
 
 // setupCollections creates the resumes collection if it doesn't exist
@@ -88,14 +89,9 @@ func cookieToAuthHeader(e *core.RequestEvent) error {
 }
 
 // requireAuthWithRedirect middleware checks auth and redirects to login if not authenticated
+// This must run AFTER cookieToAuthHeader so e.Auth is properly populated
 func requireAuthWithRedirect(e *core.RequestEvent) error {
-	// First, ensure cookie is converted to header
-	cookie, err := e.Request.Cookie("pb_auth")
-	if err == nil && cookie.Value != "" {
-		e.Request.Header.Set("Authorization", cookie.Value)
-	}
-
-	// Check if authenticated
+	// e.Auth is populated by PocketBase after cookieToAuthHeader sets the header
 	if e.Auth == nil {
 		return e.Redirect(http.StatusSeeOther, "/login")
 	}
@@ -140,6 +136,14 @@ func main() {
 
 	// Register custom routes on serve
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
+		// Register global middleware to read pb_auth cookie and set Authorization header
+		// This MUST run BEFORE PocketBase's auth token loader so e.Auth gets populated
+		se.Router.Bind(&hook.Handler[*core.RequestEvent]{
+			Id:       "cookieToAuth",
+			Func:     cookieToAuthHeader,
+			Priority: apis.DefaultLoadAuthTokenMiddlewarePriority - 1,
+		})
+
 		// Health check
 		se.Router.GET("/health", func(e *core.RequestEvent) error {
 			return e.JSON(http.StatusOK, map[string]string{"status": "healthy"})
@@ -173,13 +177,12 @@ func main() {
 
 		// Protected page routes - redirect to login if not authenticated
 		appRoutes := se.Router.Group("/app")
-		appRoutes.BindFunc(requireAuthWithRedirect)
+		appRoutes.BindFunc(requireAuthWithRedirect) // Check if authenticated, redirect if not
 		appRoutes.GET("/tweak", handlers.HandleTweakPagePB)
 		appRoutes.POST("/tweak/stream", handlers.HandleTweakStreamPB)
 
-		// API routes for saving data (with cookie middleware)
+		// API routes for saving data
 		api := se.Router.Group("/api/v1")
-		api.BindFunc(cookieToAuthHeader)
 		api.Bind(apis.RequireAuth())
 		api.POST("/resumes", handlers.HandleCreateResumePB)
 		api.GET("/resumes", handlers.HandleListResumesPB)
