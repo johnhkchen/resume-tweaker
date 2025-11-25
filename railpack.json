@@ -3,14 +3,7 @@
   "packages": {
     "go": "1.23"
   },
-  "buildAptPackages": ["gcc", "libc6-dev"],
-  "steps": {
-    "build": {
-      "commands": [
-        "CGO_ENABLED=1 go build -ldflags='-w -s' -o out"
-      ]
-    }
-  },
+  "cgo": true,
   "deploy": {
     "cmd": "./out serve --http=0.0.0.0:${PORT:-8080}"
   }
