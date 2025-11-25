@@ -74,18 +74,30 @@ func ptrStr(s string) *string {
 func cookieToAuthHeader(e *core.RequestEvent) error {
 	// Check if Authorization header already exists
 	if e.Request.Header.Get("Authorization") != "" {
-		log.Printf("[Auth] Already has Authorization header")
 		return e.Next()
 	}
 
 	// Try to get token from cookie
 	cookie, err := e.Request.Cookie("pb_auth")
-	if err != nil {
-		log.Printf("[Auth] No pb_auth cookie found: %v", err)
-	} else if cookie.Value != "" {
-		log.Printf("[Auth] Found pb_auth cookie, length=%d, setting Authorization header", len(cookie.Value))
+	if err == nil && cookie.Value != "" {
 		// PocketBase expects just the token, not "Bearer token"
 		e.Request.Header.Set("Authorization", cookie.Value)
+	}
+
+	return e.Next()
+}
+
+// requireAuthWithRedirect middleware checks auth and redirects to login if not authenticated
+func requireAuthWithRedirect(e *core.RequestEvent) error {
+	// First, ensure cookie is converted to header
+	cookie, err := e.Request.Cookie("pb_auth")
+	if err == nil && cookie.Value != "" {
+		e.Request.Header.Set("Authorization", cookie.Value)
+	}
+
+	// Check if authenticated
+	if e.Auth == nil {
+		return e.Redirect(http.StatusSeeOther, "/login")
 	}
 
 	return e.Next()
@@ -140,12 +152,30 @@ func main() {
 		se.Router.GET("/", handlers.HandleLandingPB)
 		se.Router.GET("/login", handlers.HandleLoginPagePB)
 
-		// Protected routes - require PocketBase auth (with cookie middleware)
-		protected := se.Router.Group("/app")
-		protected.BindFunc(cookieToAuthHeader)
-		protected.Bind(apis.RequireAuth())
-		protected.GET("/tweak", handlers.HandleTweakPagePB)
-		protected.POST("/tweak/stream", handlers.HandleTweakStreamPB)
+		// Redirect old /tweak route to login (which redirects to /app/tweak if authenticated)
+		se.Router.GET("/tweak", func(e *core.RequestEvent) error {
+			return e.Redirect(http.StatusSeeOther, "/login")
+		})
+
+		// Logout - clear cookie and show logout page
+		se.Router.GET("/logout", func(e *core.RequestEvent) error {
+			// Clear pb_auth cookie
+			http.SetCookie(e.Response, &http.Cookie{
+				Name:     "pb_auth",
+				Value:    "",
+				Path:     "/",
+				MaxAge:   -1,
+				HttpOnly: true,
+			})
+			// Show logout confirmation page
+			return handlers.HandleLogoutPagePB(e)
+		})
+
+		// Protected page routes - redirect to login if not authenticated
+		appRoutes := se.Router.Group("/app")
+		appRoutes.BindFunc(requireAuthWithRedirect)
+		appRoutes.GET("/tweak", handlers.HandleTweakPagePB)
+		appRoutes.POST("/tweak/stream", handlers.HandleTweakStreamPB)
 
 		// API routes for saving data (with cookie middleware)
 		api := se.Router.Group("/api/v1")

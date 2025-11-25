@@ -31,6 +31,15 @@ func HandleLoginPagePB(e *core.RequestEvent) error {
 	return e.HTML(http.StatusOK, buf.String())
 }
 
+// HandleLogoutPagePB serves the logout confirmation page
+func HandleLogoutPagePB(e *core.RequestEvent) error {
+	var buf bytes.Buffer
+	if err := templates.LogoutPage().Render(e.Request.Context(), &buf); err != nil {
+		return e.String(http.StatusInternalServerError, "Failed to render page")
+	}
+	return e.HTML(http.StatusOK, buf.String())
+}
+
 // HandleTweakPagePB serves the main tweak interface (protected)
 func HandleTweakPagePB(e *core.RequestEvent) error {
 	var buf bytes.Buffer

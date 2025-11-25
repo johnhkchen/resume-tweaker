@@ -8,6 +8,7 @@ package templates
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
+// Layout is the base layout - use for public pages
 func Layout(title string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -36,13 +37,13 @@ func Layout(title string) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layout.templ`, Line: 9, Col: 17}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layout.templ`, Line: 10, Col: 17}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " | Resume Tweaker</title><link rel=\"stylesheet\" href=\"/static/css/output.css\"><script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@starfederation/datastar@1.0.0-beta.8/dist/datastar.min.js\"></script></head><body><header class=\"border-b\" style=\"border-color: var(--color-grey-light);\"><div class=\"container\" style=\"display: flex; align-items: center; justify-content: space-between; padding-top: var(--spacing-md); padding-bottom: var(--spacing-md);\"><a href=\"/\" style=\"font-family: var(--font-serif); font-size: 1.25rem; font-weight: 600; color: var(--color-slate); text-decoration: none;\">Resume Tweaker</a><nav style=\"display: flex; gap: var(--spacing-lg);\"><a href=\"/tweak\" style=\"color: var(--color-slate-light); text-decoration: none; transition: color var(--transition-fast);\" onmouseover=\"this.style.color='var(--color-sage)'\" onmouseout=\"this.style.color='var(--color-slate-light)'\">Tweak</a></nav></div></header><main>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " | Resume Tweaker</title><link rel=\"stylesheet\" href=\"/static/css/output.css\"><script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@starfederation/datastar@1.0.0-beta.8/dist/datastar.min.js\"></script></head><body><header class=\"border-b\" style=\"border-color: var(--color-grey-light);\"><div class=\"container\" style=\"display: flex; align-items: center; justify-content: space-between; padding-top: var(--spacing-md); padding-bottom: var(--spacing-md);\"><a href=\"/\" style=\"font-family: var(--font-serif); font-size: 1.25rem; font-weight: 600; color: var(--color-slate); text-decoration: none;\">Resume Tweaker</a><nav style=\"display: flex; gap: var(--spacing-lg); align-items: center;\"><a href=\"/login\" class=\"btn-primary\" style=\"padding: var(--spacing-xs) var(--spacing-md); font-size: 0.875rem;\">Sign In</a></nav></div></header><main>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -51,6 +52,57 @@ func Layout(title string) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</main><footer class=\"border-t\" style=\"border-color: var(--color-grey-light); margin-top: auto;\"><div class=\"container\" style=\"padding-top: var(--spacing-md); padding-bottom: var(--spacing-md); text-align: center;\"><p style=\"font-size: 0.875rem; color: var(--color-grey);\">Part of the <a href=\"https://tweaking.app\" style=\"color: var(--color-sage); text-decoration: underline;\">tweaking.app</a> family</p></div></footer></body></html>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+// LayoutAuth is the layout for authenticated pages - shows logout instead of sign in
+func LayoutAuth(title string) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var3 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var3 == nil {
+			templ_7745c5c3_Var3 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<!doctype html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var4 string
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(title)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layout.templ`, Line: 48, Col: 17}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, " | Resume Tweaker</title><link rel=\"stylesheet\" href=\"/static/css/output.css\"><script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@starfederation/datastar@1.0.0-beta.8/dist/datastar.min.js\"></script></head><body><header class=\"border-b\" style=\"border-color: var(--color-grey-light);\"><div class=\"container\" style=\"display: flex; align-items: center; justify-content: space-between; padding-top: var(--spacing-md); padding-bottom: var(--spacing-md);\"><a href=\"/\" style=\"font-family: var(--font-serif); font-size: 1.25rem; font-weight: 600; color: var(--color-slate); text-decoration: none;\">Resume Tweaker</a><nav style=\"display: flex; gap: var(--spacing-lg); align-items: center;\"><a href=\"/app/tweak\" style=\"color: var(--color-slate-light); text-decoration: none; font-size: 0.9375rem;\">Tweak</a> <a href=\"/logout\" style=\"color: var(--color-slate-light); text-decoration: none; font-size: 0.9375rem;\">Sign Out</a></nav></div></header><main>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templ_7745c5c3_Var3.Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</main><footer class=\"border-t\" style=\"border-color: var(--color-grey-light); margin-top: auto;\"><div class=\"container\" style=\"padding-top: var(--spacing-md); padding-bottom: var(--spacing-md); text-align: center;\"><p style=\"font-size: 0.875rem; color: var(--color-grey);\">Part of the <a href=\"https://tweaking.app\" style=\"color: var(--color-sage); text-decoration: underline;\">tweaking.app</a> family</p></div></footer></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
