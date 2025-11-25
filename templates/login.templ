@@ -49,10 +49,21 @@ templ LoginPage(errorMsg string) {
 		<script>
 			const pb = new PocketBase(window.location.origin);
 
+			// Prevent infinite redirects - track if we've already tried redirecting
+			const redirectKey = 'login_redirect_attempted';
+			const hasRedirectAttempted = sessionStorage.getItem(redirectKey);
+
 			// Check if already logged in (but only redirect if we have a valid cookie too)
-			// This prevents redirect loops when localStorage has stale data
-			if (pb.authStore.isValid && document.cookie.includes('pb_auth=')) {
+			// Also check we haven't already tried redirecting (prevents Firefox loops)
+			if (pb.authStore.isValid && document.cookie.includes('pb_auth=') && !hasRedirectAttempted) {
+				sessionStorage.setItem(redirectKey, 'true');
 				window.location.href = '/app/tweak';
+			} else if (hasRedirectAttempted) {
+				// We tried redirecting but ended up back here - clear stale auth
+				console.log('Detected redirect loop, clearing stale auth');
+				pb.authStore.clear();
+				document.cookie = 'pb_auth=; path=/; max-age=0';
+				sessionStorage.removeItem(redirectKey);
 			}
 
 			// IMPORTANT: Do NOT use async/await in click handler - causes popup blocking issues
@@ -84,6 +95,9 @@ templ LoginPage(errorMsg string) {
 						const isSecure = window.location.protocol === 'https:';
 						const secureFlag = isSecure ? '; Secure' : '';
 						document.cookie = 'pb_auth=' + pb.authStore.token + '; path=/; max-age=' + (7 * 24 * 60 * 60) + '; SameSite=Lax' + secureFlag;
+
+						// Clear redirect tracking since we just authenticated
+						sessionStorage.removeItem(redirectKey);
 
 						// Small delay to ensure cookie is saved before redirect
 						setTimeout(function() {

@@ -295,6 +295,12 @@
   }
 }
 
+/* Datastar: Hide data-show elements until JS initializes */
+/* This prevents FOUC (Flash of Unstyled Content) */
+[data-show] {
+  display: none !important;
+}
+
 /* Focus states for accessibility */
 @layer utilities {
   button:focus-visible,
