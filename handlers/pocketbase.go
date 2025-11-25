@@ -53,13 +53,17 @@ func HandleTweakPagePB(e *core.RequestEvent) error {
 func HandleTweakStreamPB(e *core.RequestEvent) error {
 	ctx := e.Request.Context()
 
-	// Parse form
-	if err := e.Request.ParseForm(); err != nil {
-		return e.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid form data"})
+	// Datastar sends signals as top-level JSON keys
+	var body struct {
+		Resume         string `json:"resume"`
+		JobDescription string `json:"job_description"`
+	}
+	if err := e.BindBody(&body); err != nil {
+		return e.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid JSON: " + err.Error()})
 	}
 
-	resume := e.Request.FormValue("resume")
-	jobDesc := e.Request.FormValue("job_description")
+	resume := body.Resume
+	jobDesc := body.JobDescription
 
 	// Validate
 	if len(resume) < 50 {
@@ -80,8 +84,8 @@ func HandleTweakStreamPB(e *core.RequestEvent) error {
 		return e.JSON(http.StatusInternalServerError, map[string]string{"error": "SSE not supported"})
 	}
 
-	// Send initial state
-	sendSSE(w, flusher, "signal", `{"loading":true,"result":"","error":"","step":0}`)
+	// Send initial state - using datastar-merge-signals for beta.11
+	sendDatastarSignals(w, flusher, `{"loading":true,"result":"","error":"","step":0}`)
 
 	// Check if ANTHROPIC_API_KEY is set
 	if os.Getenv("ANTHROPIC_API_KEY") == "" {
@@ -96,15 +100,15 @@ func HandleTweakStreamPB(e *core.RequestEvent) error {
 
 // streamBAMLMode uses BAML to stream real LLM responses
 func streamBAMLMode(ctx context.Context, w http.ResponseWriter, flusher http.Flusher, resume, jobDesc string) {
-	sendSSE(w, flusher, "signal", `{"step":1}`)
+	sendDatastarSignals(w, flusher, `{"step":1}`)
 
 	stream, err := baml.Stream.TweakResume(ctx, resume, jobDesc)
 	if err != nil {
-		sendSSE(w, flusher, "signal", fmt.Sprintf(`{"error":"Failed to start: %s","loading":false,"step":0}`, err.Error()))
+		sendDatastarSignals(w, flusher, fmt.Sprintf(`{"error":"Failed to start: %s","loading":false,"step":0}`, err.Error()))
 		return
 	}
 
-	sendSSE(w, flusher, "signal", `{"step":2}`)
+	sendDatastarSignals(w, flusher, `{"step":2}`)
 
 	var lastContent string
 	stepAdvanced := false
@@ -117,12 +121,12 @@ func streamBAMLMode(ctx context.Context, w http.ResponseWriter, flusher http.Flu
 		}
 
 		if value.IsError {
-			sendSSE(w, flusher, "signal", fmt.Sprintf(`{"error":"Stream error: %s","loading":false,"step":0}`, value.Error.Error()))
+			sendDatastarSignals(w, flusher, fmt.Sprintf(`{"error":"Stream error: %s","loading":false,"step":0}`, value.Error.Error()))
 			return
 		}
 
 		if !stepAdvanced {
-			sendSSE(w, flusher, "signal", `{"step":3}`)
+			sendDatastarSignals(w, flusher, `{"step":3}`)
 			stepAdvanced = true
 		}
 
@@ -133,26 +137,26 @@ func streamBAMLMode(ctx context.Context, w http.ResponseWriter, flusher http.Flu
 		} else {
 			if partial := value.Stream(); partial != nil {
 				lastContent = *partial
-				sendSSE(w, flusher, "signal", fmt.Sprintf(`{"result":%q}`, lastContent))
+				sendDatastarSignals(w, flusher, fmt.Sprintf(`{"result":%q}`, lastContent))
 			}
 		}
 	}
 
-	sendSSE(w, flusher, "signal", fmt.Sprintf(`{"step":4,"result":%q,"loading":false}`, lastContent))
+	sendDatastarSignals(w, flusher, fmt.Sprintf(`{"step":4,"result":%q,"loading":false}`, lastContent))
 }
 
 // streamDemoMode streams demo content without LLM
 func streamDemoMode(ctx context.Context, w http.ResponseWriter, flusher http.Flusher) {
-	sendSSE(w, flusher, "signal", `{"step":1}`)
-	time.Sleep(800 * time.Millisecond)
+	sendDatastarSignals(w, flusher, `{"step":1}`)
+	time.Sleep(300 * time.Millisecond)
 
-	sendSSE(w, flusher, "signal", `{"step":2}`)
-	time.Sleep(600 * time.Millisecond)
+	sendDatastarSignals(w, flusher, `{"step":2}`)
+	time.Sleep(300 * time.Millisecond)
 
-	sendSSE(w, flusher, "signal", `{"step":3}`)
-	time.Sleep(700 * time.Millisecond)
+	sendDatastarSignals(w, flusher, `{"step":3}`)
+	time.Sleep(300 * time.Millisecond)
 
-	sendSSE(w, flusher, "signal", `{"step":4}`)
+	sendDatastarSignals(w, flusher, `{"step":4}`)
 
 	chunks := []string{
 		"## Resume Analysis\n\n",
@@ -176,17 +180,18 @@ func streamDemoMode(ctx context.Context, w http.ResponseWriter, flusher http.Flu
 			return
 		default:
 			fullResult += chunk
-			sendSSE(w, flusher, "signal", fmt.Sprintf(`{"result":%q}`, fullResult))
-			time.Sleep(150 * time.Millisecond)
+			sendDatastarSignals(w, flusher, fmt.Sprintf(`{"result":%q}`, fullResult))
+			time.Sleep(100 * time.Millisecond)
 		}
 	}
 
-	sendSSE(w, flusher, "signal", `{"loading":false}`)
+	sendDatastarSignals(w, flusher, `{"loading":false}`)
 }
 
-// sendSSE sends a server-sent event
-func sendSSE(w http.ResponseWriter, flusher http.Flusher, event, data string) {
-	fmt.Fprintf(w, "event: %s\ndata: %s\n\n", event, data)
+// sendDatastarSignals sends a Datastar SSE event to merge signals
+// Uses datastar-merge-signals for compatibility with Datastar beta.8-11
+func sendDatastarSignals(w http.ResponseWriter, flusher http.Flusher, signals string) {
+	fmt.Fprintf(w, "event: datastar-merge-signals\ndata: signals %s\n\n", signals)
 	flusher.Flush()
 }
 
