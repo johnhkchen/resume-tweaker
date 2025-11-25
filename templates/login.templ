@@ -67,7 +67,13 @@ templ LoginPage(errorMsg string) {
 					const authData = await pb.collection('users').authWithOAuth2({ provider: 'github' });
 
 					// Store JWT in cookie for server-side auth
-					document.cookie = `pb_auth=${pb.authStore.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
+					// Use Secure flag for HTTPS, and ensure cookie is set before redirect
+					const isSecure = window.location.protocol === 'https:';
+					const secureFlag = isSecure ? '; Secure' : '';
+					document.cookie = `pb_auth=${pb.authStore.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax${secureFlag}`;
+
+					// Small delay to ensure cookie is saved before redirect
+					await new Promise(resolve => setTimeout(resolve, 100));
 
 					// Success - redirect to app
 					window.location.href = '/app/tweak';

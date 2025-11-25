@@ -21,6 +21,7 @@ func cookieToAuthHeader(e *core.RequestEvent) error {
 	// Try to get token from cookie
 	cookie, err := e.Request.Cookie("pb_auth")
 	if err == nil && cookie.Value != "" {
+		// PocketBase expects just the token, not "Bearer token"
 		e.Request.Header.Set("Authorization", cookie.Value)
 	}
 
