@@ -7,7 +7,7 @@
   "steps": {
     "build": {
       "commands": [
-        "CGO_ENABLED=1 go build -ldflags=\"-w -s\" -o out"
+        "CGO_ENABLED=1 go build -ldflags='-w -s' -o out"
       ]
     }
   },
