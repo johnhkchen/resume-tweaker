@@ -66,6 +66,9 @@ templ LoginPage(errorMsg string) {
 				try {
 					const authData = await pb.collection('users').authWithOAuth2({ provider: 'github' });
 
+					// Store JWT in cookie for server-side auth
+					document.cookie = `pb_auth=${pb.authStore.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
+
 					// Success - redirect to app
 					window.location.href = '/app/tweak';
 				} catch (err) {
