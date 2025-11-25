@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
+	baml "github.com/johnhkchen/resume-tweaker/baml_client/baml_client"
 	datastar "github.com/starfederation/datastar/sdk/go"
 )
 
@@ -42,13 +44,88 @@ func HandleTweakStream(w http.ResponseWriter, r *http.Request) {
 		"step":    0,
 	})
 
-	// TODO: Integrate BAML client here
-	// For now, simulate streaming with a placeholder
-	streamResumeTweak(ctx, sse, resume, jobDesc)
+	// Check if ANTHROPIC_API_KEY is set
+	if os.Getenv("ANTHROPIC_API_KEY") == "" {
+		// Fall back to demo mode
+		streamResumeTweakDemo(ctx, sse, resume, jobDesc)
+		return
+	}
+
+	// Use BAML streaming
+	streamResumeTweakBAML(ctx, sse, resume, jobDesc)
 }
 
-// streamResumeTweak simulates LLM streaming with progress steps
-func streamResumeTweak(ctx context.Context, sse *datastar.ServerSentEventGenerator, resume, jobDesc string) {
+// streamResumeTweakBAML uses BAML to stream real LLM responses
+func streamResumeTweakBAML(ctx context.Context, sse *datastar.ServerSentEventGenerator, resume, jobDesc string) {
+	// Step 1: Starting LLM call
+	sse.MarshalAndMergeSignals(map[string]any{"step": 1})
+
+	// Create a channel for the streaming response
+	stream, err := baml.Stream.TweakResume(ctx, resume, jobDesc)
+	if err != nil {
+		sse.MarshalAndMergeSignals(map[string]any{
+			"error":   fmt.Sprintf("Failed to start streaming: %v", err),
+			"loading": false,
+			"step":    0,
+		})
+		return
+	}
+
+	// Step 2: Receiving response
+	sse.MarshalAndMergeSignals(map[string]any{"step": 2})
+
+	var lastContent string
+	stepAdvanced := false
+
+	// Process streaming chunks
+	for value := range stream {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+		}
+
+		if value.IsError {
+			sse.MarshalAndMergeSignals(map[string]any{
+				"error":   fmt.Sprintf("Streaming error: %v", value.Error),
+				"loading": false,
+				"step":    0,
+			})
+			return
+		}
+
+		// Advance to step 3 once we start getting content
+		if !stepAdvanced {
+			sse.MarshalAndMergeSignals(map[string]any{"step": 3})
+			stepAdvanced = true
+		}
+
+		if value.IsFinal {
+			// Final result
+			if final := value.Final(); final != nil {
+				lastContent = *final
+			}
+		} else {
+			// Streaming partial result
+			if partial := value.Stream(); partial != nil {
+				lastContent = *partial
+				sse.MarshalAndMergeSignals(map[string]any{
+					"result": lastContent,
+				})
+			}
+		}
+	}
+
+	// Step 4: Complete
+	sse.MarshalAndMergeSignals(map[string]any{
+		"step":    4,
+		"result":  lastContent,
+		"loading": false,
+	})
+}
+
+// streamResumeTweakDemo is the demo/fallback mode without LLM
+func streamResumeTweakDemo(ctx context.Context, sse *datastar.ServerSentEventGenerator, resume, jobDesc string) {
 	// Step 1: Analyzing resume
 	sse.MarshalAndMergeSignals(map[string]any{"step": 1})
 	time.Sleep(800 * time.Millisecond)
@@ -85,7 +162,7 @@ func streamResumeTweak(ctx context.Context, sse *datastar.ServerSentEventGenerat
 		"Reorder bullet points to prioritize ",
 		"experiences most relevant to this role.\n\n",
 		"---\n\n",
-		"*This is a demo. Real AI suggestions coming soon!*",
+		"*Demo mode: Set ANTHROPIC_API_KEY to enable real AI suggestions.*",
 	}
 
 	var fullResult string
@@ -115,13 +192,6 @@ func sendError(w http.ResponseWriter, r *http.Request, msg string) {
 		"loading": false,
 		"step":    0,
 	})
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }
 
 // getSessionID gets or creates a session ID from cookies

@@ -6,10 +6,10 @@ templ LoginPage(errorMsg string) {
 			<div class="card">
 				<div style="text-align: center; margin-bottom: var(--spacing-xl);">
 					<h1 style="font-family: var(--font-serif); font-size: 1.75rem; font-weight: 600; margin-bottom: var(--spacing-sm);">
-						Welcome Back
+						Welcome
 					</h1>
 					<p style="color: var(--color-slate-light);">
-						Enter the password to access Resume Tweaker.
+						Sign in to access Resume Tweaker.
 					</p>
 				</div>
 
@@ -21,26 +21,20 @@ templ LoginPage(errorMsg string) {
 					</div>
 				}
 
-				<form action="/login" method="POST" style="display: flex; flex-direction: column; gap: var(--spacing-lg);">
-					<div>
-						<label for="password" style="display: block; font-weight: 600; margin-bottom: var(--spacing-xs); color: var(--color-slate);">
-							Password
-						</label>
-						<input
-							type="password"
-							id="password"
-							name="password"
-							class="input-field"
-							placeholder="Enter password"
-							required
-							autofocus
-						/>
-					</div>
+				<div id="error-message" style="display: none; background-color: var(--color-bg-error); border-left: 3px solid var(--color-text-error); padding: var(--spacing-md); border-radius: var(--border-radius); margin-bottom: var(--spacing-lg);">
+					<p style="color: var(--color-text-error); font-size: 0.9375rem;" id="error-text"></p>
+				</div>
 
-					<button type="submit" class="btn-primary" style="width: 100%;">
-						Log In
-					</button>
-				</form>
+				<button
+					id="github-login"
+					class="btn-primary"
+					style="width: 100%; display: flex; align-items: center; justify-content: center; gap: var(--spacing-sm);"
+				>
+					<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+						<path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+					</svg>
+					Continue with GitHub
+				</button>
 
 				<div style="margin-top: var(--spacing-xl); text-align: center;">
 					<a href="/" style="color: var(--color-sage); text-decoration: none; font-size: 0.875rem;">
@@ -49,5 +43,45 @@ templ LoginPage(errorMsg string) {
 				</div>
 			</div>
 		</div>
+
+		<!-- PocketBase SDK -->
+		<script src="https://cdn.jsdelivr.net/npm/pocketbase@0.25.0/dist/pocketbase.umd.min.js"></script>
+		<script>
+			const pb = new PocketBase(window.location.origin);
+
+			// Check if already logged in
+			if (pb.authStore.isValid) {
+				window.location.href = '/app/tweak';
+			}
+
+			document.getElementById('github-login').addEventListener('click', async () => {
+				const btn = document.getElementById('github-login');
+				const errorDiv = document.getElementById('error-message');
+				const errorText = document.getElementById('error-text');
+
+				btn.disabled = true;
+				btn.innerHTML = '<span class="spinner"></span> Connecting...';
+				errorDiv.style.display = 'none';
+
+				try {
+					const authData = await pb.collection('users').authWithOAuth2({ provider: 'github' });
+
+					// Success - redirect to app
+					window.location.href = '/app/tweak';
+				} catch (err) {
+					console.error('OAuth error:', err);
+					errorText.textContent = err.message || 'Failed to sign in with GitHub';
+					errorDiv.style.display = 'block';
+
+					btn.disabled = false;
+					btn.innerHTML = `
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+							<path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+						</svg>
+						Continue with GitHub
+					`;
+				}
+			});
+		</script>
 	}
 }

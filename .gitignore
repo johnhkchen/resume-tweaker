@@ -9,11 +9,10 @@ bin/
 *.out
 vendor/
 
-# Generated code (sqlc, baml)
+# Generated code (sqlc) - not baml_client, needed for builds
 db/db.go
 db/models.go
 db/queries.sql.go
-baml_client/
 
 # Tailwind standalone CLI binary
 tailwindcss
@@ -42,3 +41,9 @@ Thumbs.db
 # Flox cache (local only)
 .flox/cache/
 .flox/log/
+
+# PocketBase data (local development)
+pb_data/
+
+# Compiled binary
+server
