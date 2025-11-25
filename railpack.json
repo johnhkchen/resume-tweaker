@@ -1,0 +1,17 @@
+{
+  "$schema": "https://railpack.com/schema.json",
+  "packages": {
+    "go": "1.23",
+    "gcc": "*"
+  },
+  "steps": {
+    "build": {
+      "commands": [
+        "CGO_ENABLED=1 go build -ldflags=\"-w -s\" -o out"
+      ]
+    }
+  },
+  "deploy": {
+    "cmd": "./out serve --http=0.0.0.0:${PORT:-8080}"
+  }
+}

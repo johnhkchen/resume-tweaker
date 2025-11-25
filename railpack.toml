@@ -1,5 +1,0 @@
-# Railpack Configuration for Resume Tweaker (Go)
-# Keep it simple - let Railpack auto-detect Go
-
-[packages]
-go = "1.23"
