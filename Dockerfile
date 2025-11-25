@@ -25,13 +25,15 @@ WORKDIR /app
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
 
-# Copy binary and static files
+# Copy binary, static files, and start script
 COPY --from=builder /app/server .
 COPY --from=builder /app/static ./static
 COPY --from=builder /app/templates ./templates
+COPY --from=builder /app/start.sh .
+RUN chmod +x start.sh
 
 # Expose port
 EXPOSE 8080
 
-# Run the server
-CMD ["./server", "serve", "--http=0.0.0.0:8080"]
+# Run via start script (handles superuser setup from env vars)
+CMD ["./start.sh"]
