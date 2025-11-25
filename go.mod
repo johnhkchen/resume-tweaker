@@ -1,6 +1,8 @@
 module github.com/johnhkchen/resume-tweaker
 
-go 1.25.1
+go 1.23.0
+
+toolchain go1.23.3
 
 require (
 	github.com/a-h/templ v0.3.960
