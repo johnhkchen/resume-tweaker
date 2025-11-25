@@ -1,9 +1,9 @@
 {
   "$schema": "https://railpack.com/schema.json",
   "packages": {
-    "go": "1.23",
-    "gcc": "*"
+    "go": "1.23"
   },
+  "buildAptPackages": ["gcc", "libc6-dev"],
   "steps": {
     "build": {
       "commands": [
